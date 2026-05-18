@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Typical Coffee - ኢንቨስትመንት</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #eef5e8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 70px; }
+        .app-container { max-width: 500px; margin: 0 auto; background: #ffffff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; }
+        .auth-card { padding: 30px 20px; }
+        .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-header h1 { color: #6f4e2e; font-size: 2rem; }
+        .toggle-buttons { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid #ddd; }
+        .toggle-btn { flex: 1; text-align: center; padding: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; color: #888; }
+        .toggle-btn.active { color: #6f4e2e; border-bottom: 3px solid #6f4e2e; }
+        .form-group { margin-bottom: 20px; }
+        input { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 60px; font-size: 1rem; outline: none; }
+        button { width: 100%; padding: 14px; background: #6f4e2e; color: white; border: none; border-radius: 60px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .error { color: #d32f2f; font-size: 0.8rem; text-align: center; margin-top: 8px; }
+        .dashboard { display: none; }
+        .top-bar { background: #6f4e2e; padding: 20px 16px 12px; color: white; }
+        .greeting { font-size: 1.2rem; font-weight: bold; }
+        .logout-link { text-align: right; font-size: 0.7rem; margin: 10px 16px; cursor: pointer; color: #b85c00; }
+        .balance-card { background: #f9f9f9; border-radius: 28px; padding: 20px; margin: 16px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .balance-amount { font-size: 2rem; font-weight: bold; color: #6f4e2e; }
+        .quick-actions { display: flex; justify-content: space-around; margin: 16px; gap: 10px; }
+        .quick-btn { background: white; border: 1px solid #ddd; border-radius: 60px; padding: 10px 0; text-align: center; flex: 1; cursor: pointer; transition: 0.2s; }
+        .quick-btn i { font-size: 1.5rem; color: #6f4e2e; display: block; margin-bottom: 5px; }
+        .quick-btn span { font-size: 0.75rem; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0 20px; border-top: 1px solid #eee; }
+        .nav-item { text-align: center; cursor: pointer; flex: 1; color: #888; }
+        .nav-item i { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+        .nav-item span { font-size: 0.7rem; }
+        .nav-item.active { color: #6f4e2e; }
+        .panel { display: none; padding: 16px; }
+        .panel.active-panel { display: block; }
+        .vip-card, .order-item, .bank-card-form, .withdraw-card, .deposit-amount-selector { background: #f9f9f9; border-radius: 28px; padding: 16px; margin-bottom: 16px; }
+        .vip-title { font-size: 1.2rem; font-weight: bold; }
+        .vip-detail { display: flex; justify-content: space-between; margin: 8px 0; }
+        .btn-purchase { background: #6f4e2e; padding: 8px; border-radius: 60px; margin-top: 8px; color: white; text-align: center; cursor: pointer; }
+        .amount-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+        .amount-btn { background: #e0e0e0; padding: 10px; text-align: center; border-radius: 60px; cursor: pointer; }
+        .amount-btn.selected { background: #6f4e2e; color: white; }
+        .bank-select { display: flex; gap: 15px; flex-wrap: wrap; margin: 15px 0; }
+        .bank-option { flex: 1; text-align: center; padding: 8px; border: 1px solid #ddd; border-radius: 60px; cursor: pointer; }
+        .bank-option.selected { background: #6f4e2e; color: white; }
+        .copy-btn { background: #6f4e2e; padding: 4px 12px; border-radius: 40px; color: white; cursor: pointer; display: inline-block; margin-left: 10px; font-size: 0.7rem; }
+        .team-level { background: #f0f0f0; border-radius: 20px; padding: 12px; margin: 10px 0; }
+        .hide { display: none; }
+        .transaction-item { background: white; border-radius: 20px; padding: 8px 12px; margin: 5px 0; }
+        .filter-buttons { display: flex; gap: 8px; margin: 15px 0; flex-wrap: wrap; }
+        .filter-btn { background: #e0e0e0; border: none; padding: 8px 16px; border-radius: 60px; cursor: pointer; font-size: 0.8rem; }
+        .filter-btn.active { background: #6f4e2e; color: white; }
+        .bank-name-field { position: relative; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .bank-name-field input { flex: 1; }
+        .dots-btn { background: #e0e0e0; border: none; width: 44px; border-radius: 60px; font-size: 1.4rem; cursor: pointer; margin-top: 0; }
+        .bank-list { position: absolute; top: 60px; left: 0; right: 0; background: white; border-radius: 28px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); z-index: 100; max-height: 250px; overflow-y: auto; }
+        .bank-list div { padding: 12px 16px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .service-option { background: #e9f5e8; border-radius: 60px; padding: 15px; margin: 15px 0; text-align: center; cursor: pointer; font-weight: bold; }
+        .withdraw-rules { font-size: 0.8rem; background: #fff3e0; padding: 12px; border-radius: 28px; margin-top: 15px; }
+        .treasure-card { background: #fff3e0; border-radius: 28px; padding: 15px; margin-top: 10px; }
+        .pending-box { background: #fff3cd; padding: 12px; border-radius: 20px; margin: 10px 0; text-align: center; font-weight: bold; }
+        .ft-input { margin: 15px 0; }
+        .about-section { background: #f9f9f9; border-radius: 28px; padding: 20px; margin: 10px 0; line-height: 1.6; }
+        .about-section h3 { color: #6f4e2e; margin-top: 15px; }
+        .about-section p { margin: 10px 0; }
+        .about-flags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+        .flag { background: #e0e0e0; padding: 6px 12px; border-radius: 40px; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- Auth Section -->
+    <div id="authSection">
+        <div class="auth-card">
+            <div class="auth-header"><h1>☕ TYPICAL COFFEE</h1><p>Start your wealth journey here</p></div>
+            <div class="toggle-buttons">
+                <div id="loginTab" class="toggle-btn active">LOG IN</div>
+                <div id="registerTab" class="toggle-btn">REGISTER</div>
+            </div>
+            <div id="loginForm">
+                <div class="form-group"><input type="tel" id="loginPhone" placeholder="Mobile Number"></div>
+                <div class="form-group"><input type="password" id="loginPassword" placeholder="Password"></div>
+                <button id="doLoginBtn">LOG IN</button>
+                <div id="loginError" class="error"></div>
+            </div>
+            <div id="registerForm" style="display:none;">
+                <div class="form-group"><input type="tel" id="regPhone" placeholder="Mobile Number"></div>
+                <div class="form-group"><input type="password" id="regPassword" placeholder="Password"></div>
+                <div class="form-group"><input type="password" id="regConfirm" placeholder="Confirm Password"></div>
+                <div class="form-group"><input type="text" id="inviteCode" placeholder="Invitation Code (optional)"></div>
+                <button id="doRegisterBtn">REGISTER</button>
+                <div id="regError" class="error"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <div class="top-bar"><div class="greeting" id="greetingText">☕ Welcome, User!</div></div>
+        <div class="logout-link" id="logoutBtn">← Logout</div>
+
+        <div class="balance-card">
+            <div>My Balance</div>
+            <div class="balance-amount" id="balanceDisplay">ETB 0.00</div>
+            <div>Total Income: <span id="totalIncome">ETB 0.00</span></div>
+        </div>
+
+        <div class="quick-actions">
+            <div class="quick-btn" data-action="deposit"><i class="fas fa-download"></i><span>Deposit</span></div>
+            <div class="quick-btn" data-action="withdraw"><i class="fas fa-upload"></i><span>Withdraw</span></div>
+            <div class="quick-btn" data-action="checkin"><i class="fas fa-calendar-check"></i><span>Check In</span></div>
+            <div class="quick-btn" data-action="service"><i class="fas fa-headset"></i><span>Service</span></div>
+        </div>
+
+        <!-- Panels -->
+        <div id="homePanel" class="panel active-panel"></div>
+        <div id="ordersPanel" class="panel"></div>
+        <div id="showPanel" class="panel"></div>     <!-- About Typical Coffee -->
+        <div id="sharePanel" class="panel"></div>    <!-- Invite friends -->
+        <div id="myPanel" class="panel"></div>
+        <div id="depositPanel" class="panel"></div>
+        <div id="withdrawPanel" class="panel"></div>
+        <div id="servicePanel" class="panel"></div>
+
+        <div class="bottom-nav">
+            <div class="nav-item" data-nav="home"><i class="fas fa-home"></i><span>Home</span></div>
+            <div class="nav-item" data-nav="orders"><i class="fas fa-shopping-bag"></i><span>Orders</span></div>
+            <div class="nav-item" data-nav="show"><i class="fas fa-info-circle"></i><span>Show</span></div>
+            <div class="nav-item" data-nav="share"><i class="fas fa-users"></i><span>Share</span></div>
+            <div class="nav-item" data-nav="my"><i class="fas fa-user"></i><span>My</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- Data Models ----------
+    let currentUser = null;
+    let pendingDepositTimer = null;
+    function getUsers() { return JSON.parse(localStorage.getItem("tc_users") || "{}"); }
+    function saveUsers(users) { localStorage.setItem("tc_users", JSON.stringify(users)); }
+    function getUserStats(phone) { let s = localStorage.getItem("tc_stats_"+phone); return s ? JSON.parse(s) : { balance:300, totalIncome:0, totalDeposit:0, totalWithdraw:0, lastCheckIn:null }; }
+    function saveUserStats(phone, stats) { localStorage.setItem("tc_stats_"+phone, JSON.stringify(stats)); }
+    function getUserBank(phone) { let b = localStorage.getItem("tc_bank_"+phone); return b ? JSON.parse(b) : null; }
+    function saveUserBank(phone, bank) { localStorage.setItem("tc_bank_"+phone, JSON.stringify(bank)); }
+    function getUserPurchases(phone) { let p = localStorage.getItem("tc_purchases_"+phone); return p ? JSON.parse(p) : []; }
+    function saveUserPurchases(phone, purchases) { localStorage.setItem("tc_purchases_"+phone, JSON.stringify(purchases)); }
+    function getUserWithdrawals(phone) { let w = localStorage.getItem("tc_withdrawals_"+phone); return w ? JSON.parse(w) : []; }
+    function saveUserWithdrawals(phone, wd) { localStorage.setItem("tc_withdrawals_"+phone, JSON.stringify(wd)); }
+    function getUserTransactions(phone) { let t = localStorage.getItem("tc_transactions_"+phone); return t ? JSON.parse(t) : []; }
+    function saveUserTransactions(phone, tx) { localStorage.setItem("tc_transactions_"+phone, JSON.stringify(tx)); }
+    function getReferralTree() { return JSON.parse(localStorage.getItem("tc_referrals") || "{}"); }
+    function saveReferralTree(tree) { localStorage.setItem("tc_referrals", JSON.stringify(tree)); }
+    function getUsedFTs(phone) { let f = localStorage.getItem("tc_ft_used_"+phone); return f ? JSON.parse(f) : []; }
+    function saveUsedFTs(phone, arr) { localStorage.setItem("tc_ft_used_"+phone, JSON.stringify(arr)); }
+
+    // VIP data (10 levels based on AMD-Chip original screens)
+    const vipLevels = [
+        { id:1, name:"VIP1", price:900, daily:60, total:2700, days:45 },
+        { id:2, name:"VIP2", price:1500, daily:103, total:4635, days:45 },
+        { id:3, name:"VIP3", price:2800, daily:200, total:9000, days:45 },
+        { id:4, name:"VIP4", price:5600, daily:410, total:18450, days:45 },
+        { id:5, name:"VIP5", price:12000, daily:920, total:41400, days:45 },
+        { id:6, name:"VIP6", price:26000, daily:2080, total:93600, days:45 },
+        { id:7, name:"VIP7", price:47000, daily:3800, total:171000, days:45 },
+        { id:8, name:"VIP8", price:88000, daily:7200, total:324000, days:45 },
+        { id:9, name:"VIP9", price:150000, daily:12500, total:562500, days:45 },
+        { id:10, name:"VIP10", price:340000, daily:29000, total:1305000, days:45 }
+    ];
+
+    function updateDashboardUI() {
+        if(!currentUser) return;
+        let stats = getUserStats(currentUser);
+        document.getElementById('balanceDisplay').innerText = `ETB ${stats.balance.toFixed(2)}`;
+        document.getElementById('totalIncome').innerText = `ETB ${stats.totalIncome.toFixed(2)}`;
+        document.getElementById('greetingText').innerHTML = `☕ Welcome, ${currentUser.slice(-4)}!`;
+    }
+
+    function processDailyIncome(phone) {
+        let purchases = getUserPurchases(phone);
+        let stats = getUserStats(phone);
+        let now = Date.now();
+        let updated = false;
+        for(let p of purchases) {
+            if(!p.lastClaim) p.lastClaim = p.purchaseTime;
+            let daysSince = Math.floor((now - p.lastClaim) / (24*60*60*1000));
+            if(daysSince >= 1) {
+                let vip = vipLevels.find(v => v.id === p.vipId);
+                if(vip) {
+                    let income = vip.daily * daysSince;
+                    stats.balance += income;
+                    stats.totalIncome += income;
+                    p.lastClaim += daysSince * 24*60*60*1000;
+                    updated = true;
+                }
+            }
+        }
+        if(updated) {
+            saveUserStats(phone, stats);
+            saveUserPurchases(phone, purchases);
+            updateDashboardUI();
+        }
+    }
+
+    // Render Home (Purchase Area)
+    function renderHome() {
+        let html = `<div class="balance-card"><div>☕ Investment Packages (Purchase to unlock withdrawal & daily income)</div></div>`;
+        for(let vip of vipLevels) {
+            html += `<div class="vip-card">
+                <div class="vip-title">☕ ${vip.name}</div>
+                <div>Price: ${vip.price} ETB</div>
+                <div class="vip-detail"><span>Daily Income:</span><span>ETB ${vip.daily}</span></div>
+                <div class="vip-detail"><span>Total Return:</span><span>ETB ${vip.total}</span></div>
+                <div class="vip-detail"><span>Mining Days:</span><span>${vip.days} days</span></div>
+                <button class="btn-purchase" data-vip="${vip.id}">Purchase Amount: ETB ${vip.price}</button>
+            </div>`;
+        }
+        document.getElementById('homePanel').innerHTML = html;
+        document.querySelectorAll('.btn-purchase').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                let vipId = parseInt(btn.getAttribute('data-vip'));
+                let vip = vipLevels.find(v => v.id === vipId);
+                let stats = getUserStats(currentUser);
+                if(stats.balance >= vip.price) {
+                    stats.balance -= vip.price;
+                    saveUserStats(currentUser, stats);
+                    let purchases = getUserPurchases(currentUser);
+                    purchases.push({ vipId, purchaseTime: Date.now(), lastClaim: Date.now() });
+                    saveUserPurchases(currentUser, purchases);
+                    alert(`✅ Successfully purchased ${vip.name}! Daily income of ${vip.daily} ETB will be added each day. You can now withdraw funds.`);
+                    updateDashboardUI();
+                    renderHome();
+                } else {
+                    alert(`❌ Insufficient balance. Need ${vip.price} ETB. Please deposit first.`);
+                }
+            });
+        });
+    }
+
+    // ------------------ DEPOSIT WITH FT/TIN VERIFICATION (CBE / Telebirr only) ------------------
+    let depositState = { amount: null, bank: null };
+
+    function renderDeposit() {
+        depositState = { amount: null, bank: null };
+        if(pendingDepositTimer) clearTimeout(pendingDepositTimer);
+        const panel = document.getElementById('depositPanel');
+        panel.innerHTML = `
+            <div class="vip-card"><h3>Deposit (CBE or Telebirr Only)</h3>
+            <div class="amount-grid" id="amountGrid"></div>
+            <div id="continueBtnArea"></div>
+            <div id="bankSelectionArea" class="hide"></div>
+            <div id="ftVerificationArea" class="hide"></div>
+            </div>
+        `;
+        const amounts = [900,1200,1500,2800,5600,12000,26000,47000,88000,150000,340000];
+        let amountHtml = '';
+        amounts.forEach(amt => { amountHtml += `<div class="amount-btn" data-amount="${amt}">${amt} ETB</div>`; });
+        document.getElementById('amountGrid').innerHTML = amountHtml;
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                depositState.amount = parseInt(btn.getAttribute('data-amount'));
+                document.getElementById('continueBtnArea').innerHTML = `<button id="continueDepositBtn">Continue</button>`;
+                document.getElementById('continueDepositBtn').onclick = () => showBankSelectionOnlyCBE_Tele();
+            });
+        });
+    }
+
+    function showBankSelectionOnlyCBE_Tele() {
+        document.getElementById('bankSelectionArea').classList.remove('hide');
+        const allowedBanks = ["CBE", "Telebirr"];
+        let bankHtml = '<div class="bank-select">';
+        allowedBanks.forEach(b => { bankHtml += `<div class="bank-option" data-bank="${b}">${b}</div>`; });
+        bankHtml += '</div><button id="confirmBankBtn">Next: Enter FT/TIN</button>';
+        document.getElementById('bankSelectionArea').innerHTML = bankHtml;
+        document.querySelectorAll('.bank-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.bank-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                depositState.bank = opt.getAttribute('data-bank');
+            });
+        });
+        document.getElementById('confirmBankBtn').onclick = () => {
+            if(!depositState.bank) { alert("Please select CBE or Telebirr"); return; }
+            showFTVerificationStep();
+        };
+    }
+
+    function showFTVerificationStep() {
+        const bank = depositState.bank;
+        let nameText = "", accountText = "";
+        if(bank === "CBE") {
+            nameText = "ABRHAM EWUNETE EJIGALEM";
+            accountText = "1000529209928";
+        } else { // Telebirr
+            nameText = "ABRHAM";
+            accountText = "0951499555";
+        }
+        const ftArea = document.getElementById('ftVerificationArea');
+        ftArea.innerHTML = `
+            <div class="bank-detail" style="background:#fff3e0;padding:15px;border-radius:28px; margin-top:15px;">
+                <div><strong>Receiver Name:</strong> ${nameText}</div>
+                <div><strong>Bank / Wallet:</strong> ${bank}</div>
+                <div><strong>Account / Phone:</strong> ${accountText}</div>
+                <div><strong>Amount to deposit:</strong> ${depositState.amount} ETB</div>
+                <div class="ft-input"><label>FT/TIN Number (from your transfer receipt):</label>
+                <input type="text" id="ftTinCode" placeholder="e.g., FT26135R5QNQ" style="margin-top:8px;"></div>
+                <button id="submitFtBtn">Verify & Complete Deposit</button>
+                <div id="pendingStatusMsg" class="pending-box hide"></div>
+            </div>
+        `;
+        ftArea.classList.remove('hide');
+        document.getElementById('submitFtBtn').onclick = () => initiateFTVerification();
+    }
+
+    function initiateFTVerification() {
+        const ftCode = document.getElementById('ftTinCode').value.trim().toUpperCase();
+        if(!ftCode) { alert("❌ Please enter the FT/TIN Number from your bank/TeleBirr receipt."); return; }
+        
+        const VALID_FT_CODE = "FT26135R5QNQ";
+        const usedList = getUsedFTs(currentUser);
+        const now = Date.now();
+        const fifteenMins = 15 * 60 * 1000;
+        const recentlyUsed = usedList.find(entry => entry.ftCode === ftCode && (now - entry.timestamp) < fifteenMins);
+        
+        if(recentlyUsed) {
+            alert("❌ Deposit Failed: This FT/TIN number has already been used within the last 15 minutes or is expired/old. Please use a fresh reference.");
+            return;
+        }
+        if(ftCode !== VALID_FT_CODE) {
+            alert("❌ Deposit Failed: Invalid FT/TIN number. Please check with your bank/TeleBirr receipt and enter the correct code.");
+            return;
+        }
+        
+        const msgDiv = document.getElementById('pendingStatusMsg');
+        msgDiv.classList.remove('hide');
+        msgDiv.innerHTML = "⏳ Pending verification with bank/TeleBirr... Please wait 15 seconds (simulated). Do not close page.";
+        document.getElementById('submitFtBtn').disabled = true;
+        
+        if(pendingDepositTimer) clearTimeout(pendingDepositTimer);
+        pendingDepositTimer = setTimeout(() => {
+            msgDiv.innerHTML = "✅ Verification successful! Deposit completed successfully.";
+            let stats = getUserStats(currentUser);
+            stats.balance += depositState.amount;
+            stats.totalDeposit += depositState.amount;
+            stats.totalIncome += depositState.amount;
+            saveUserStats(currentUser, stats);
+            let txns = getUserTransactions(currentUser);
+            txns.push({ type:"deposit", amount:depositState.amount, timestamp:Date.now(), ftCode, bank:depositState.bank });
+            saveUserTransactions(currentUser, txns);
+            const updatedUsed = getUsedFTs(currentUser);
+            updatedUsed.push({ ftCode, timestamp: Date.now() });
+            saveUsedFTs(currentUser, updatedUsed);
+            
+            let users = getUsers();
+            let referrer = users[currentUser]?.referrer;
+            if(referrer) {
+                let refStats = getUserStats(referrer);
+                let commission = depositState.amount * 0.2;
+                refStats.balance += commission;
+                refStats.totalIncome += commission;
+                saveUserStats(referrer, refStats);
+                let refTx = getUserTransactions(referrer);
+                refTx.push({ type:"commission", amount:commission, timestamp:Date.now(), from:currentUser, level:1 });
+                saveUserTransactions(referrer, refTx);
+                let referrals = getReferralTree();
+                if(referrals[referrer] && referrals[referrer].members && referrals[referrer].members.includes(currentUser)) {
+                    if(!referrals[referrer].activeMembers) referrals[referrer].activeMembers = [];
+                    if(!referrals[referrer].activeMembers.includes(currentUser)) {
+                        referrals[referrer].activeMembers.push(currentUser);
+                        saveReferralTree(referrals);
+                    }
+                }
+                let upline2 = users[referrer]?.referrer;
+                if(upline2) {
+                    let stats2 = getUserStats(upline2);
+                    let comm2 = depositState.amount * 0.03;
+                    stats2.balance += comm2;
+                    stats2.totalIncome += comm2;
+                    saveUserStats(upline2, stats2);
+                    let tx2 = getUserTransactions(upline2);
+                    tx2.push({ type:"commission", amount:comm2, timestamp:Date.now(), from:currentUser, level:2 });
+                    saveUserTransactions(upline2, tx2);
+                    let upline3 = users[upline2]?.referrer;
+                    if(upline3) {
+                        let stats3 = getUserStats(upline3);
+                        let comm3 = depositState.amount * 0.02;
+                        stats3.balance += comm3;
+                        stats3.totalIncome += comm3;
+                        saveUserStats(upline3, stats3);
+                        let tx3 = getUserTransactions(upline3);
+                        tx3.push({ type:"commission", amount:comm3, timestamp:Date.now(), from:currentUser, level:3 });
+                        saveUserTransactions(upline3, tx3);
+                    }
+                }
+            }
+            updateDashboardUI();
+            alert(`✅ Deposit of ${depositState.amount} ETB via ${depositState.bank} successful! Your balance has been updated.`);
+            showPanel('home');
+            document.getElementById('submitFtBtn').disabled = false;
+            pendingDepositTimer = null;
+        }, 15000);
+    }
+
+    // ------------------ WITHDRAW (Requires product purchase) ------------------
+    function renderWithdraw() {
+        let stats = getUserStats(currentUser);
+        let purchases = getUserPurchases(currentUser);
+        if(purchases.length === 0) {
+            document.getElementById('withdrawPanel').innerHTML = `<div class="withdraw-card"><h3>⚠️ Withdrawal Unavailable</h3><div class="error">You must purchase at least one Coffee Investment Package (VIP) before making a withdrawal.</div><button onclick="showPanel('home')">Go to Packages</button></div>`;
+            return;
+        }
+        let bank = getUserBank(currentUser);
+        let bankHtml = bank ? `<div>🏦 Bank: ${bank.bankName}<br>📄 Account: ${bank.accountNumber}<br>👤 Holder: ${bank.holderName}</div>` : '<div class="error">❌ No bank account added. Please add in My > Bank Account.</div>';
+        const panel = document.getElementById('withdrawPanel');
+        panel.innerHTML = `<div class="withdraw-card">
+            <h3>Withdrawal</h3>
+            <div><strong>💰 Balance:</strong> ETB ${stats.balance.toFixed(2)}</div>
+            <div><strong>💸 Amount to withdraw:</strong> <input type="number" id="withdrawAmount" placeholder="ETB" min="300"></div>
+            <div><strong>🏦 Bank Information:</strong></div>
+            ${bankHtml}
+            <button id="confirmWithdrawBtn">Confirm Withdrawal</button>
+            <div class="withdraw-rules">📌 Withdrawal Rules:<br>• Minimum 300 ETB<br>• Working hours: 10:00 - 17:00<br>• 10% fee applies<br>✅ You have purchased a package - eligible</div>
+        </div>`;
+        document.getElementById('confirmWithdrawBtn').onclick = () => {
+            let amount = parseFloat(document.getElementById('withdrawAmount').value);
+            let now = new Date();
+            let hour = now.getHours();
+            if(isNaN(amount) || amount < 300) { alert("Minimum withdrawal amount is 300 ETB"); return; }
+            if(amount > stats.balance) { alert("Insufficient balance"); return; }
+            if(hour < 10 || hour >= 17) { alert("Withdrawals allowed only between 10:00 AM and 5:00 PM"); return; }
+            if(!bank) { alert("Please add your bank account in My > Bank Account first"); return; }
+            let confirmMsg = confirm(`Withdraw ${amount} ETB? 10% fee will be deducted.\nNet amount: ${(amount*0.9).toFixed(2)} ETB\nConfirm?`);
+            if(confirmMsg) {
+                let fee = amount * 0.1;
+                let net = amount - fee;
+                stats.balance -= amount;
+                stats.totalWithdraw += amount;
+                saveUserStats(currentUser, stats);
+                let wds = getUserWithdrawals(currentUser);
+                wds.push({ amount, fee, net, timestamp:Date.now(), status:"success" });
+                saveUserWithdrawals(currentUser, wds);
+                let txns = getUserTransactions(currentUser);
+                txns.push({ type:"withdraw", amount, fee, net, timestamp:Date.now() });
+                saveUserTransactions(currentUser, txns);
+                alert(`✅ Withdrawal successful!\nAmount: ${amount} ETB\nFee: ${fee} ETB\nNet credited: ${net} ETB`);
+                updateDashboardUI();
+                showPanel('home');
+            }
+        };
+    }
+
+    // Check In
+    function renderCheckIn() {
+        let stats = getUserStats(currentUser);
+        let today = new Date().toDateString();
+        if(stats.lastCheckIn === today) alert("You have already checked in today!");
+        else {
+            let bonus = 10;
+            stats.balance += bonus;
+            stats.totalIncome += bonus;
+            stats.lastCheckIn = today;
+            saveUserStats(currentUser, stats);
+            let txns = getUserTransactions(currentUser);
+            txns.push({ type:"checkin", amount:bonus, timestamp:Date.now() });
+            saveUserTransactions(currentUser, txns);
+            updateDashboardUI();
+            alert("✅ Check-in successful! +10 ETB");
+        }
+    }
+
+    // Service
+    function renderService() {
+        const panel = document.getElementById('servicePanel');
+        panel.innerHTML = `<div style="background:#f9f9f9; border-radius:28px; padding:20px;">
+            <div class="service-option" id="customerServiceBtn">☕ Typical Coffee Customer Service</div>
+            <div class="service-option" id="officialChannelBtn">📢 Typical Coffee Official Channel</div>
+        </div>`;
+        document.getElementById('customerServiceBtn')?.addEventListener('click', () => window.location.href="https://t.me/greenplantcustemerservice");
+        document.getElementById('officialChannelBtn')?.addEventListener('click', () => window.location.href="https://t.me/greenplantoffcial");
+    }
+
+    // Orders
+    function renderOrders() {
+        let purchases = getUserPurchases(currentUser);
+        let html = '<h3>📦 My Orders (Investments)</h3>';
+        if(purchases.length === 0) html += '<div>No purchases yet. Go to Home to invest.</div>';
+        else {
+            for(let p of purchases) {
+                let vip = vipLevels.find(v => v.id === p.vipId);
+                if(vip) {
+                    let lastClaimDate = p.lastClaim ? new Date(p.lastClaim).toLocaleDateString() : 'Never';
+                    html += `<div class="order-item">☕ ${vip.name} - Price: ${vip.price} ETB<br>📈 Daily Income: ${vip.daily} ETB<br>🕒 Last claimed: ${lastClaimDate}</div>`;
+                }
+            }
+        }
+        document.getElementById('ordersPanel').innerHTML = html;
+    }
+
+    // ---------- New: About Typical Coffee (Show tab) ----------
+    function renderAbout() {
+        const panel = document.getElementById('showPanel');
+        panel.innerHTML = `
+            <div class="about-section">
+                <h2>☕ About Typical Coffee Investment</h2>
+                <p><strong>What we do:</strong> Typical Coffee is a revolutionary coffee‑farming investment platform that combines agricultural innovation with blockchain transparency. Investors purchase “virtual coffee plants” (VIP packages) and earn daily returns based on real-world coffee production and global market demand.</p>
+                
+                <h3>📅 When we started</h3>
+                <p>Typical Coffee began operations on <strong>April 21, 2026</strong>. Since then, we have expanded to serve thousands of investors worldwide.</p>
+                
+                <h3>🌍 Global presence</h3>
+                <p>Our platform is already active and successfully running in several countries:</p>
+                <div class="about-flags">
+                    <span class="flag">🇰🇪 Kenya</span>
+                    <span class="flag">🇳🇬 Nigeria</span>
+                    <span class="flag">🇿🇦 South Africa</span>
+                    <span class="flag">🇮🇳 India</span>
+                    <span class="flag">🇵🇰 Pakistan</span>
+                    <span class="flag">🇧🇩 Bangladesh</span>
+                    <span class="flag">🇮🇩 Indonesia</span>
+                    <span class="flag">🇻🇳 Vietnam</span>
+                    <span class="flag">🇵🇭 Philippines</span>
+                    <span class="flag">🇪🇬 Egypt</span>
+                    <span class="flag">🇹🇷 Turkey</span>
+                    <span class="flag">🇧🇷 Brazil</span>
+                </div>
+                <p>We are currently processing cross-border investments through secure channels, and our user base is growing daily.</p>
+                
+                <h3>🇪🇹 Our vision for Ethiopia</h3>
+                <p>Typical Coffee is committed to launching <strong>full-scale operations in Ethiopia</strong> very soon. We believe Ethiopia’s rich coffee heritage and growing digital economy provide a perfect environment for our investment model. We are in final discussions with local partners and regulators to ensure a smooth and legal entry. Our goal is to empower Ethiopian farmers and investors alike, creating sustainable income opportunities.</p>
+                
+                <h3>🔒 How it works</h3>
+                <p>• Purchase any of our 10 VIP packages (from 900 ETB to 340,000 ETB).<br>
+                • Earn a fixed daily income for 45 days (total return up to 130,500 ETB).<br>
+                • Invite friends to earn 20% / 3% / 2% commission on three levels.<br>
+                • Withdraw your profits every day (10% fee, minimum 300 ETB).<br>
+                • Daily check‑in and treasure codes give extra bonuses.</p>
+                
+                <h3>📢 Join the movement</h3>
+                <p>Typical Coffee is not just an investment – it’s a community. We have official Telegram support and regular updates. Start your journey today and grow with us!</p>
+                <p style="margin-top:20px;"><strong>⚠️ Risk warning:</strong> As with any investment, returns are not guaranteed. Please invest responsibly.</p>
+            </div>
+        `;
+    }
+
+    // ---------- Share (Referral) Panel ----------
+    function renderShare() {
+        let users = getUsers();
+        let myCode = users[currentUser]?.inviteCode || (()=>{ let code = Math.random().toString(36).substring(2,8).toUpperCase(); users[currentUser].inviteCode = code; saveUsers(users); return code; })();
+        let baseUrl = window.location.href.split('?')[0];
+        let inviteLink = `${baseUrl}?ref=${myCode}`;
+        let referrals = getReferralTree();
+        let myTeam = referrals[currentUser] || { members: [], activeMembers: [] };
+        let level1Count = myTeam.members.length;
+        let level1Active = myTeam.activeMembers?.length || 0;
+        let level2Count = 0, level2Active = 0;
+        for(let m of myTeam.members) {
+            let sub = referrals[m] || { members: [] };
+            level2Count += sub.members.length;
+            level2Active += (sub.activeMembers?.length || 0);
+        }
+        let level3Count = 0, level3Active = 0;
+        for(let m of myTeam.members) {
+            let sub = referrals[m] || { members: [] };
+            for(let sm of sub.members) {
+                let subsub = referrals[sm] || { members: [] };
+                level3Count += subsub.members.length;
+                level3Active += (subsub.activeMembers?.length || 0);
+            }
+        }
+        const panel = document.getElementById('sharePanel');
+        panel.innerHTML = `<div style="background:#f9f9f9; border-radius:28px; padding:20px;">
+            <div><strong>🔑 Invitation code:</strong> ${myCode} <span class="copy-btn" data-copy="${myCode}">Copy</span></div>
+            <div><strong>🔗 Invitation link:</strong> ${inviteLink} <span class="copy-btn" data-copy="${inviteLink}">Copy</span></div>
+            <hr>
+            <div class="team-level"><strong>👥 Team 1 (20%)</strong><br>Members: ${level1Count}<br>Active: ${level1Active}</div>
+            <div class="team-level"><strong>👥 Team 2 (3%)</strong><br>Members: ${level2Count}<br>Active: ${level2Active}</div>
+            <div class="team-level"><strong>👥 Team 3 (2%)</strong><br>Members: ${level3Count}<br>Active: ${level3Active}</div>
+            <div><small>💸 Referral rewards: 20% for direct, 3% for level2, 2% for level3.</small></div>
+        </div>`;
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => { let text = btn.getAttribute('data-copy'); navigator.clipboard.writeText(text); alert("Copied: "+text); });
+        });
+    }
+
+    // My page
+    function renderMy() {
+        let stats = getUserStats(currentUser);
+        const panel = document.getElementById('myPanel');
+        panel.innerHTML = `<div style="background:#f9f9f9; border-radius:28px; padding:20px;">
+            <div><i class="fas fa-user-circle"></i> ${currentUser}</div>
+            <div>💰 Balance: ${stats.balance.toFixed(2)} ETB</div>
+            <div>📥 Total Deposit: ${stats.totalDeposit.toFixed(2)}</div>
+            <div>📤 Total Withdraw: ${stats.totalWithdraw.toFixed(2)}</div>
+            <hr>
+            <div class="quick-actions" style="flex-wrap:wrap;">
+                <button id="teamTaskBtn">👥 Team Task</button>
+                <button id="chestBtn">🎁 Chest</button>
+                <button id="reportsBtn">📄 Reports</button>
+                <button id="bankAccountBtn">🏦 Bank Account</button>
+                <button id="customerServiceBtn2">📞 Customer Service</button>
+                <button id="changePasswordBtn">🔐 Change Password</button>
+                <button id="downloadBtn">📲 Download</button>
+            </div>
+            <div id="myDynamicContent"></div>
+        </div>`;
+        document.getElementById('bankAccountBtn').onclick = () => showBankAccountForm();
+        document.getElementById('changePasswordBtn').onclick = () => showChangePassword();
+        document.getElementById('chestBtn').onclick = () => showTreasure();
+        document.getElementById('teamTaskBtn').onclick = () => alert("Team tasks: Invite more members to earn commissions.");
+        document.getElementById('reportsBtn').onclick = () => showReports();
+        document.getElementById('customerServiceBtn2').onclick = () => showPanel('service');
+        document.getElementById('downloadBtn').onclick = () => alert("App download link: https://example.com");
+    }
+
+    let currentFilter = 'all';
+    function showReports() {
+        let txns = getUserTransactions(currentUser);
+        const filterHtml = `
+            <div class="filter-buttons">
+                <button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" data-filter="all">All</button>
+                <button class="filter-btn ${currentFilter === 'deposit' ? 'active' : ''}" data-filter="deposit">Deposit</button>
+                <button class="filter-btn ${currentFilter === 'withdraw' ? 'active' : ''}" data-filter="withdraw">Withdraw</button>
+                <button class="filter-btn ${currentFilter === 'checkin' ? 'active' : ''}" data-filter="checkin">Check-in</button>
+            </div>
+        `;
+        let filtered = txns;
+        if(currentFilter === 'deposit') filtered = txns.filter(t => t.type === 'deposit');
+        else if(currentFilter === 'withdraw') filtered = txns.filter(t => t.type === 'withdraw');
+        else if(currentFilter === 'checkin') filtered = txns.filter(t => t.type === 'checkin');
+        
+        let html = '<h4>📜 Transaction History</h4>' + filterHtml;
+        if(filtered.length === 0) html += '<div>No transactions found for selected filter.</div>';
+        else {
+            filtered.slice().reverse().forEach(t => {
+                let typeDesc = '';
+                if(t.type === 'deposit') typeDesc = '💰 Deposit';
+                else if(t.type === 'withdraw') typeDesc = '🏧 Withdrawal';
+                else if(t.type === 'checkin') typeDesc = '✅ Daily Check-in';
+                else typeDesc = '🎁 Commission';
+                let amountStr = t.type === 'withdraw' ? `${t.amount} ETB (fee ${t.fee})` : `${t.amount} ETB`;
+                html += `<div class="transaction-item">${typeDesc}: ${amountStr} - ${new Date(t.timestamp).toLocaleString()}</div>`;
+            });
+        }
+        document.getElementById('myDynamicContent').innerHTML = html;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentFilter = btn.getAttribute('data-filter');
+                showReports();
+            });
+        });
+    }
+
+    function showBankAccountForm() {
+        let existing = getUserBank(currentUser);
+        const container = document.getElementById('myDynamicContent');
+        container.innerHTML = `
+            <div class="bank-card-form">
+                <div class="bank-name-field">
+                    <input type="text" id="bankNameInput" placeholder="Bank name" value="${existing?.bankName || ''}" readonly>
+                    <button class="dots-btn" id="bankDotsBtn">⋯</button>
+                </div>
+                <div id="bankListDropdown" class="bank-list hide"></div>
+                <div class="form-group"><input type="text" id="accountNumber" placeholder="Account Number" value="${existing?.accountNumber || ''}"></div>
+                <div class="form-group"><input type="text" id="holderName" placeholder="Real Name" value="${existing?.holderName || ''}"></div>
+                <button id="saveBankBtn">Confirm</button>
+            </div>
+        `;
+        const banks = ["CBE", "Telebirr", "Awash", "Abysinia", "Oromia Bank", "Dashen", "Lion", "Zemen", "Bunna", "Nib", "Hibret"];
+        const dropdown = document.getElementById('bankListDropdown');
+        const dotsBtn = document.getElementById('bankDotsBtn');
+        const bankNameInput = document.getElementById('bankNameInput');
+        dotsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if(dropdown.classList.contains('hide')) {
+                dropdown.innerHTML = banks.map(b => `<div data-bank="${b}">${b}</div>`).join('');
+                dropdown.classList.remove('hide');
+            } else {
+                dropdown.classList.add('hide');
+            }
+        });
+        dropdown.addEventListener('click', (e) => {
+            let target = e.target.closest('[data-bank]');
+            if(target) {
+                bankNameInput.value = target.getAttribute('data-bank');
+                dropdown.classList.add('hide');
+            }
+        });
+        document.getElementById('saveBankBtn').addEventListener('click', () => {
+            let bankName = bankNameInput.value.trim();
+            let acc = document.getElementById('accountNumber').value.trim();
+            let name = document.getElementById('holderName').value.trim();
+            if(!bankName || !acc || !name) { alert("All fields required"); return; }
+            saveUserBank(currentUser, { bankName, accountNumber:acc, holderName:name });
+            alert("Bank account saved!");
+            renderMy();
+        });
+    }
+
+    function showChangePassword() {
+        let users = getUsers();
+        const container = document.getElementById('myDynamicContent');
+        container.innerHTML = `<div><input type="password" id="oldPass" placeholder="Current Password"><input type="password" id="newPass" placeholder="New Password"><input type="password" id="confirmPass" placeholder="Confirm Password"><button id="changePwdConfirm">Confirm</button></div>`;
+        document.getElementById('changePwdConfirm').onclick = () => {
+            let old = document.getElementById('oldPass').value;
+            let newp = document.getElementById('newPass').value;
+            let conf = document.getElementById('confirmPass').value;
+            if(users[currentUser].password !== old) { alert("Wrong old password"); return; }
+            if(newp !== conf) { alert("Passwords do not match"); return; }
+            if(newp.length < 6) { alert("Min 6 chars"); return; }
+            users[currentUser].password = newp;
+            saveUsers(users);
+            alert("Password changed!");
+            renderMy();
+        };
+    }
+
+    function showTreasure() {
+        const container = document.getElementById('myDynamicContent');
+        const today = new Date().toISOString().slice(0,10);
+        const storageKey = `daily_treasure_${currentUser}_${today}`;
+        const hasClaimed = localStorage.getItem(storageKey);
+        const dailyCode = `TYPICAL-${today.slice(8)}${today.slice(5,7)}`;
+        container.innerHTML = `
+            <div class="treasure-card">
+                <h4>🎁 Daily Treasure Reward (5–10 ETB)</h4>
+                <p>Today's code: <strong>${dailyCode}</strong></p>
+                <input type="text" id="rewardCode" placeholder="Enter today's code">
+                <button id="getRewardBtn">Get reward</button>
+                <div id="rewardResult"></div>
+                ${hasClaimed ? '<p style="color:orange;">✅ You have already claimed today’s reward!</p>' : ''}
+            </div>
+        `;
+        const rewardBtn = document.getElementById('getRewardBtn');
+        if(rewardBtn) {
+            rewardBtn.onclick = () => {
+                if(hasClaimed) {
+                    document.getElementById('rewardResult').innerHTML = '<div style="color:red;">❌ You can only claim once per day!</div>';
+                    return;
+                }
+                const entered = document.getElementById('rewardCode').value.trim();
+                if(entered !== dailyCode) {
+                    document.getElementById('rewardResult').innerHTML = '<div style="color:red;">❌ Invalid code for today!</div>';
+                    return;
+                }
+                const bonus = Math.floor(Math.random() * 6) + 5;
+                let stats = getUserStats(currentUser);
+                stats.balance += bonus;
+                stats.totalIncome += bonus;
+                saveUserStats(currentUser, stats);
+                let txns = getUserTransactions(currentUser);
+                txns.push({ type:"checkin", amount:bonus, timestamp:Date.now(), note:"Treasure reward" });
+                saveUserTransactions(currentUser, txns);
+                localStorage.setItem(storageKey, 'claimed');
+                updateDashboardUI();
+                document.getElementById('rewardResult').innerHTML = `<div style="color:green;">🎉 +${bonus} ETB credited to your balance!</div>`;
+                setTimeout(() => showTreasure(), 1500);
+            };
+        }
+    }
+
+    // Navigation and helpers
+    function showPanel(panelName) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active-panel'));
+        document.getElementById(panelName+'Panel').classList.add('active-panel');
+        document.querySelectorAll('.nav-item').forEach(nav => {
+            nav.classList.remove('active');
+            if(nav.getAttribute('data-nav') === panelName) nav.classList.add('active');
+        });
+        if(panelName === 'home') renderHome();
+        if(panelName === 'orders') renderOrders();
+        if(panelName === 'show') renderAbout();      // Show tab -> About
+        if(panelName === 'share') renderShare();     // Share tab -> Referral
+        if(panelName === 'my') renderMy();
+        if(panelName === 'deposit') renderDeposit();
+        if(panelName === 'withdraw') renderWithdraw();
+        if(panelName === 'service') renderService();
+    }
+
+    document.querySelectorAll('.quick-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            let action = btn.getAttribute('data-action');
+            if(action === 'deposit') showPanel('deposit');
+            else if(action === 'withdraw') showPanel('withdraw');
+            else if(action === 'checkin') renderCheckIn();
+            else if(action === 'service') showPanel('service');
+        });
+    });
+
+    function showAuth() { document.getElementById('authSection').style.display = 'block'; document.getElementById('dashboard').style.display = 'none'; }
+    function showDashboard() { document.getElementById('authSection').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; updateDashboardUI(); processDailyIncome(currentUser); showPanel('home'); }
+    const loginTab = document.getElementById('loginTab'), registerTab = document.getElementById('registerTab');
+    const loginFormDiv = document.getElementById('loginForm'), registerFormDiv = document.getElementById('registerForm');
+    loginTab.onclick = () => { loginTab.classList.add('active'); registerTab.classList.remove('active'); loginFormDiv.style.display='block'; registerFormDiv.style.display='none'; };
+    registerTab.onclick = () => { registerTab.classList.add('active'); loginTab.classList.remove('active'); loginFormDiv.style.display='none'; registerFormDiv.style.display='block'; };
+    document.getElementById('doLoginBtn').onclick = () => {
+        let phone = document.getElementById('loginPhone').value.trim();
+        let pwd = document.getElementById('loginPassword').value;
+        let users = getUsers();
+        if(!users[phone] || users[phone].password !== pwd) { document.getElementById('loginError').innerText = "Invalid credentials"; return; }
+        currentUser = phone;
+        localStorage.setItem("tc_logged", phone);
+        showDashboard();
+    };
+    document.getElementById('doRegisterBtn').onclick = () => {
+        let phone = document.getElementById('regPhone').value.trim();
+        let pwd = document.getElementById('regPassword').value;
+        let confirm = document.getElementById('regConfirm').value;
+        let invCode = document.getElementById('inviteCode').value.trim();
+        let users = getUsers();
+        if(!phone || !pwd || !confirm) { document.getElementById('regError').innerText = "Fill all fields"; return; }
+        if(pwd !== confirm) { document.getElementById('regError').innerText = "Passwords don't match"; return; }
+        if(users[phone]) { document.getElementById('regError').innerText = "User exists"; return; }
+        let inviteCode = Math.random().toString(36).substring(2,8).toUpperCase();
+        users[phone] = { password:pwd, inviteCode, referrer:null };
+        if(invCode) {
+            for(let p in users) {
+                if(users[p].inviteCode === invCode) {
+                    users[phone].referrer = p;
+                    let referrals = getReferralTree();
+                    if(!referrals[p]) referrals[p] = { members: [], activeMembers: [] };
+                    if(!referrals[p].members.includes(phone)) referrals[p].members.push(phone);
+                    saveReferralTree(referrals);
+                    break;
+                }
+            }
+        }
+        saveUsers(users);
+        saveUserStats(phone, { balance:300, totalIncome:0, totalDeposit:0, totalWithdraw:0, lastCheckIn:null });
+        saveUserPurchases(phone, []);
+        saveUserWithdrawals(phone, []);
+        saveUserTransactions(phone, []);
+        saveUsedFTs(phone, []);
+        currentUser = phone;
+        localStorage.setItem("tc_logged", phone);
+        showDashboard();
+    };
+    document.getElementById('logoutBtn').onclick = () => { if(pendingDepositTimer) clearTimeout(pendingDepositTimer); localStorage.removeItem("tc_logged"); currentUser = null; showAuth(); };
+    document.querySelectorAll('.nav-item').forEach(nav => nav.addEventListener('click', () => showPanel(nav.getAttribute('data-nav'))));
+
+    let saved = localStorage.getItem("tc_logged");
+    let users = getUsers();
+    if(saved && users[saved]) { currentUser = saved; showDashboard(); } else showAuth();
+</script>
+</body>
+</html>
